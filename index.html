@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KrushiMitra – Smart Farming Assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=Yatra+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green-deep:#1a4d2e;--green-mid:#2d7a4f;--green-light:#4caf7d;--green-pale:#d4edda;
+  --soil:#7a5230;--sun:#e8a020;--white:#fdfcf8;--text:#1c2b20;--text-muted:#5a7060;
+  --shadow:0 8px 32px rgba(26,77,46,0.13);--radius:16px;
+  --red:#c62828;--yellow:#856404;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Nunito',sans-serif;background:var(--white);color:var(--text);min-height:100vh;}
+
+/* LANG BAR */
+#lang-bar{position:fixed;top:0;left:0;right:0;z-index:999;background:var(--green-deep);
+  padding:7px 24px;display:flex;align-items:center;justify-content:space-between;}
+.lang-title{color:#a8d5b5;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;}
+.lang-buttons{display:flex;gap:6px;}
+.lang-btn{background:transparent;border:1.5px solid rgba(255,255,255,.25);color:#cce8d4;border-radius:20px;
+  padding:3px 14px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;}
+.lang-btn:hover,.lang-btn.active{background:var(--green-light);border-color:var(--green-light);color:white;}
+
+/* NAV */
+nav{position:fixed;top:36px;left:0;right:0;z-index:998;background:rgba(253,252,248,.97);
+  backdrop-filter:blur(12px);border-bottom:2px solid var(--green-pale);padding:12px 32px;
+  display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 12px rgba(26,77,46,.07);}
+.nav-logo{display:flex;align-items:center;gap:10px;}
+.logo-box{width:36px;height:36px;background:linear-gradient(135deg,var(--green-mid),var(--green-light));
+  border-radius:10px;display:flex;align-items:center;justify-content:center;color:white;font-weight:900;font-size:15px;}
+.logo-text{font-family:'Yatra One',cursive;font-size:20px;color:var(--green-deep);}
+.nav-links{display:flex;gap:4px;align-items:center;flex-wrap:wrap;}
+.nav-links a{text-decoration:none;color:var(--text-muted);font-weight:700;font-size:13px;
+  padding:6px 12px;border-radius:9px;transition:all .2s;cursor:pointer;}
+.nav-links a:hover,.nav-links a.active-nav{background:var(--green-pale);color:var(--green-deep);}
+
+/* SECTIONS */
+.section{display:none;padding-top:90px;min-height:100vh;}
+.section.active{display:block;}
+
+/* HOME */
+#home{background:linear-gradient(160deg,#e8f5ee 0%,#fdfcf8 60%,#fff8f0 100%);}
+.hero{max-width:1100px;margin:0 auto;padding:70px 40px 50px;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;}
+.hero-text h1{font-family:'Yatra One',cursive;font-size:48px;line-height:1.1;color:var(--green-deep);margin-bottom:6px;}
+.hero-text .tagline{font-size:16px;color:var(--soil);font-weight:700;margin-bottom:16px;}
+.hero-text p{font-size:15px;color:var(--text-muted);line-height:1.7;margin-bottom:28px;}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap;}
+.btn-primary{background:linear-gradient(135deg,var(--green-deep),var(--green-mid));color:white;
+  padding:13px 28px;border-radius:12px;font-family:'Nunito',sans-serif;font-weight:800;font-size:15px;
+  border:none;cursor:pointer;box-shadow:0 4px 16px rgba(26,77,46,.28);transition:all .22s;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(26,77,46,.36);}
+.btn-secondary{background:white;color:var(--green-deep);padding:13px 28px;border-radius:12px;
+  font-family:'Nunito',sans-serif;font-weight:800;font-size:15px;border:2px solid var(--green-pale);cursor:pointer;transition:all .22s;}
+.btn-secondary:hover{border-color:var(--green-light);background:var(--green-pale);}
+
+.hero-visual{display:flex;justify-content:center;}
+.hero-card{background:white;border-radius:18px;padding:22px 26px;box-shadow:var(--shadow);
+  border:1.5px solid rgba(76,175,125,.15);min-width:280px;}
+.crop-label{font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.crop-name{font-family:'Yatra One',cursive;font-size:26px;color:var(--green-deep);}
+.crop-detail{font-size:13px;color:var(--soil);font-weight:600;margin-top:4px;}
+.crop-stats{display:flex;gap:18px;margin-top:14px;}
+.crop-stat .val{font-size:18px;font-weight:900;color:var(--green-mid);}
+.crop-stat .key{font-size:11px;color:var(--text-muted);font-weight:600;}
+.risk-row{display:flex;gap:7px;margin-top:14px;flex-wrap:wrap;}
+.risk-pill{padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;}
+.risk-low{background:#d4edda;color:#1a4d2e;}
+.risk-med{background:#fff3cd;color:#856404;}
+.risk-high{background:#fde8e8;color:#c62828;}
+
+.features-strip{max-width:1100px;margin:0 auto;padding:0 40px 70px;display:grid;grid-template-columns:repeat(4,1fr);gap:18px;}
+.feat-card{background:white;border-radius:16px;padding:22px 18px;border:1.5px solid var(--green-pale);
+  text-align:center;box-shadow:0 3px 14px rgba(26,77,46,.06);transition:transform .2s,box-shadow .2s;}
+.feat-card:hover{transform:translateY(-3px);box-shadow:0 8px 22px rgba(26,77,46,.1);}
+.feat-card h3{font-size:14px;font-weight:800;color:var(--green-deep);margin-bottom:7px;}
+.feat-card p{font-size:13px;color:var(--text-muted);line-height:1.5;}
+
+/* PAGE HEADER */
+.page-header{max-width:700px;margin:0 auto;padding:50px 40px 0;text-align:center;}
+.page-header h2{font-family:'Yatra One',cursive;font-size:34px;color:var(--green-deep);margin-bottom:8px;}
+.page-header p{font-size:15px;color:var(--text-muted);line-height:1.6;}
+
+/* FORM */
+.form-container{max-width:680px;margin:36px auto;padding:0 24px 50px;}
+.form-card{background:white;border-radius:22px;padding:36px;box-shadow:var(--shadow);border:1.5px solid var(--green-pale);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;}
+.form-group{margin-bottom:18px;}
+.form-group label{display:block;font-weight:800;font-size:13px;color:var(--green-deep);margin-bottom:7px;}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:11px 14px;border-radius:10px;
+  border:2px solid #e5ede8;font-family:'Nunito',sans-serif;font-size:14px;color:var(--text);
+  background:#f9fdf9;transition:border .2s;outline:none;}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--green-light);background:white;}
+.radio-group{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;}
+.radio-option{display:flex;align-items:center;gap:5px;background:#f0f7f2;border-radius:9px;
+  padding:7px 14px;cursor:pointer;transition:all .18s;border:2px solid transparent;
+  font-size:13px;font-weight:700;color:var(--text-muted);}
+.radio-option input{display:none;}
+.radio-option.selected{background:var(--green-pale);border-color:var(--green-light);color:var(--green-deep);}
+.radio-option:hover{background:var(--green-pale);color:var(--green-deep);}
+.submit-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--green-deep),var(--green-mid));
+  color:white;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:800;
+  cursor:pointer;box-shadow:0 4px 16px rgba(26,77,46,.28);transition:all .22s;margin-top:8px;}
+.submit-btn:hover{transform:translateY(-2px);}
+.submit-btn:disabled{opacity:.7;cursor:not-allowed;transform:none;}
+
+.district-badge{background:linear-gradient(135deg,#e8f5ee,#f0f7f2);border:1.5px solid var(--green-light);
+  border-radius:12px;padding:14px 18px;margin-bottom:18px;display:none;}
+.district-badge.visible{display:block;}
+#db-title{font-weight:800;color:var(--green-deep);font-size:13px;margin-bottom:9px;}
+#db-grid{display:flex;gap:16px;flex-wrap:wrap;}
+.db-item{font-size:13px;color:var(--text-muted);font-weight:600;background:white;padding:4px 10px;border-radius:8px;}
+
+/* CLIMATE */
+.climate-grid{max-width:1000px;margin:36px auto;padding:0 24px;display:grid;grid-template-columns:repeat(4,1fr);gap:18px;}
+.climate-card{background:white;border-radius:18px;padding:26px 18px;text-align:center;
+  box-shadow:var(--shadow);border:1.5px solid var(--green-pale);}
+.cc-val{font-size:28px;font-weight:900;color:var(--green-deep);}
+.cc-unit{font-size:13px;color:var(--text-muted);font-weight:600;margin-top:2px;}
+.cc-label{font-size:12px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;}
+
+.chart-section{max-width:1000px;margin:0 auto;padding:0 24px 20px;}
+.chart-title{font-weight:800;font-size:15px;color:var(--green-deep);margin-bottom:14px;}
+#bar-chart{display:flex;gap:6px;align-items:flex-end;height:150px;padding:10px 0;}
+.bar-wrap{display:flex;flex-direction:column;align-items:center;flex:1;}
+.bar-val{font-size:10px;font-weight:700;color:var(--text-muted);margin-bottom:3px;}
+.bar{background:linear-gradient(to top,var(--green-mid),var(--green-light));border-radius:4px 4px 0 0;width:100%;min-height:4px;}
+.bar-label{font-size:10px;color:var(--text-muted);font-weight:600;margin-top:3px;}
+
+.soil-section{max-width:1000px;margin:0 auto;padding:0 24px 40px;}
+.soil-section h3{font-weight:800;font-size:15px;color:var(--green-deep);margin-bottom:14px;}
+#soil-info-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
+.soil-item{background:white;border-radius:12px;padding:14px 16px;border:1.5px solid var(--green-pale);box-shadow:0 2px 8px rgba(26,77,46,.06);}
+.s-name{font-weight:800;font-size:13px;color:var(--green-deep);margin-bottom:4px;}
+.s-desc{font-size:12px;color:var(--text-muted);line-height:1.5;}
+
+/* RECOMMENDATION */
+.rec-container{max-width:900px;margin:36px auto;padding:0 24px 50px;}
+.rec-main{background:linear-gradient(135deg,var(--green-deep),#1e5c38);color:white;border-radius:20px;
+  padding:30px 36px;margin-bottom:20px;box-shadow:0 6px 24px rgba(26,77,46,.3);}
+.rec-badge{display:inline-block;background:var(--green-light);color:white;padding:3px 12px;border-radius:20px;
+  font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;}
+#rec-crop-name{font-family:'Yatra One',cursive;font-size:34px;color:white;margin-bottom:6px;}
+#rec-sub{font-size:14px;color:rgba(255,255,255,.8);margin-bottom:20px;}
+.rec-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+.rec-stat .rv{font-size:20px;font-weight:900;color:white;}
+.rec-stat .rk{font-size:11px;color:rgba(255,255,255,.75);font-weight:600;margin-top:2px;}
+.rec-details-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px;}
+.rec-detail-card{background:white;border-radius:14px;padding:18px 16px;border:1.5px solid var(--green-pale);box-shadow:0 2px 8px rgba(26,77,46,.06);}
+.rec-detail-card h4{font-size:12px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px;}
+.rec-detail-card .val{font-size:15px;font-weight:800;color:var(--green-deep);}
+.analysis-box{background:white;border-radius:14px;padding:20px;border:1.5px solid var(--green-pale);margin-bottom:18px;}
+.analysis-box h3{font-size:14px;font-weight:800;color:var(--green-deep);margin-bottom:9px;}
+.analysis-box p{font-size:14px;color:var(--text-muted);line-height:1.7;}
+.all-crops-box{background:white;border-radius:14px;padding:20px;border:1.5px solid var(--green-pale);}
+.all-crops-box h3{font-size:14px;font-weight:800;color:var(--green-deep);margin-bottom:12px;}
+#all-crops-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
+.crop-tab{background:#f0f7f2;border-radius:10px;padding:12px 14px;cursor:pointer;border:2px solid transparent;transition:all .18s;}
+.crop-tab:hover,.crop-tab.active-tab{background:var(--green-pale);border-color:var(--green-light);}
+.ct-name{font-weight:800;font-size:13px;color:var(--green-deep);}
+.ct-yield{font-size:12px;color:var(--green-mid);font-weight:700;margin-top:2px;}
+.ct-area{font-size:11px;color:var(--text-muted);margin-top:4px;line-height:1.4;}
+
+/* RISK */
+.risk-container{max-width:900px;margin:36px auto;padding:0 24px 50px;}
+.risk-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:20px;}
+.risk-card{background:white;border-radius:18px;padding:28px 20px;text-align:center;box-shadow:var(--shadow);border:1.5px solid var(--green-pale);}
+.risk-card h3{font-size:15px;font-weight:800;color:var(--green-deep);margin-bottom:14px;}
+.risk-meter{background:#e8f0ea;border-radius:8px;height:10px;overflow:hidden;margin-bottom:10px;}
+.risk-fill{height:100%;border-radius:8px;transition:width .4s;}
+.risk-fill.low{width:25%;background:#4caf7d;}
+.risk-fill.medium{width:60%;background:#f5a623;}
+.risk-fill.high{width:95%;background:#e53935;}
+.risk-text-low{font-size:13px;font-weight:800;color:#1a4d2e;}
+.risk-text-medium{font-size:13px;font-weight:800;color:#856404;}
+.risk-text-high{font-size:13px;font-weight:800;color:#c62828;}
+.suggestions-card{background:white;border-radius:16px;padding:24px;box-shadow:var(--shadow);border:1.5px solid var(--green-pale);}
+.suggestions-card h3{font-size:15px;font-weight:800;color:var(--green-deep);margin-bottom:14px;}
+.sug-item{padding:12px 0;border-bottom:1px solid #f0f0f0;}
+.sug-item:last-child{border-bottom:none;}
+.sug-item p{font-size:14px;color:var(--text-muted);line-height:1.6;}
+
+/* CALENDAR */
+.calendar-container{max-width:900px;margin:30px auto;padding:0 24px 50px;}
+.cal-header{background:white;border-radius:14px;padding:18px 22px;margin-bottom:20px;
+  box-shadow:0 2px 12px rgba(26,77,46,.08);border:1.5px solid var(--green-pale);display:flex;justify-content:space-between;align-items:center;}
+#cal-crop-label{font-family:'Yatra One',cursive;font-size:20px;color:var(--green-deep);}
+#cal-loc-info{font-size:13px;color:var(--text-muted);font-weight:600;}
+.cal-timeline{display:flex;flex-direction:column;gap:18px;}
+.month-group{background:white;border-radius:14px;overflow:hidden;box-shadow:0 2px 10px rgba(26,77,46,.07);border:1.5px solid var(--green-pale);}
+.month-label{background:var(--green-deep);color:white;padding:10px 18px;font-weight:800;font-size:14px;}
+.cal-events{padding:14px 16px;display:flex;flex-direction:column;gap:10px;}
+.cal-event{display:flex;gap:12px;align-items:flex-start;}
+.ev-type{min-width:70px;text-align:center;padding:4px 8px;border-radius:8px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;}
+.ev-prep{background:#e3f2fd;color:#1565c0;}
+.ev-sow{background:#e8f5e9;color:#2e7d32;}
+.ev-fert{background:#fff8e1;color:#f57f17;}
+.ev-pest{background:#fce4ec;color:#c62828;}
+.ev-irr{background:#e0f7fa;color:#00695c;}
+.ev-harv{background:#f3e5f5;color:#6a1b9a;}
+.ev-mon{background:#f5f5f5;color:#424242;}
+.ev-title{font-weight:800;font-size:13px;color:var(--green-deep);margin-bottom:3px;}
+.ev-desc{font-size:12px;color:var(--text-muted);line-height:1.5;}
+
+/* PEST */
+.pest-container{max-width:1000px;margin:30px auto;padding:0 24px 50px;}
+.dist-pest-banner{background:#fde8e8;border:1.5px solid #e53935;border-radius:12px;padding:12px 18px;
+  font-size:14px;font-weight:700;color:#c62828;margin-bottom:18px;}
+.pest-zone-label{font-size:13px;font-weight:800;color:var(--text-muted);text-transform:uppercase;
+  letter-spacing:.8px;margin-bottom:16px;padding:8px 0;border-bottom:2px solid var(--green-pale);}
+.pest-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:18px;}
+.pest-card{background:white;border-radius:16px;padding:20px;box-shadow:0 3px 14px rgba(26,77,46,.08);border:1.5px solid var(--green-pale);}
+.pest-name{font-weight:800;font-size:15px;color:var(--green-deep);margin-bottom:3px;}
+.pest-latin{font-size:11px;color:var(--text-muted);font-style:italic;margin-bottom:4px;}
+.pest-stage,.pest-season{font-size:12px;color:var(--text-muted);font-weight:600;margin-bottom:2px;}
+.pest-details{margin-top:12px;display:flex;flex-direction:column;gap:7px;}
+.pest-row{display:flex;gap:8px;}
+.pest-key{min-width:110px;font-size:12px;font-weight:800;color:var(--green-deep);}
+.pest-val{font-size:12px;color:var(--text-muted);line-height:1.5;}
+
+/* DASHBOARD */
+.dash-container{max-width:900px;margin:30px auto;padding:0 24px 50px;}
+.dash-top{background:linear-gradient(135deg,var(--green-deep),#1e5c38);border-radius:20px;
+  padding:28px 32px;margin-bottom:20px;color:white;}
+#dash-welcome{font-family:'Yatra One',cursive;font-size:26px;margin-bottom:6px;}
+#dash-loc{font-size:13px;color:rgba(255,255,255,.8);margin-bottom:20px;}
+.dash-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+.dash-metric{background:rgba(255,255,255,.12);border-radius:12px;padding:14px 16px;text-align:center;}
+.dm-val{font-size:20px;font-weight:900;color:white;}
+.dm-key{font-size:11px;color:rgba(255,255,255,.75);font-weight:600;margin-top:2px;}
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.dash-card{background:white;border-radius:16px;padding:22px;box-shadow:var(--shadow);border:1.5px solid var(--green-pale);}
+.dash-card h3{font-size:14px;font-weight:800;color:var(--green-deep);margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--green-pale);}
+.dash-info-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #f5f5f5;}
+.dash-info-row:last-of-type{border-bottom:none;}
+.dir-key{font-size:13px;font-weight:700;color:var(--text-muted);}
+.dir-val{font-size:13px;font-weight:800;color:var(--green-deep);}
+.next-task{background:var(--green-pale);border-radius:12px;padding:14px 16px;margin-top:14px;}
+.nt-label{font-size:11px;font-weight:800;color:var(--green-mid);text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px;}
+.nt-task{font-size:14px;font-weight:800;color:var(--green-deep);}
+.nt-date{font-size:12px;color:var(--text-muted);font-weight:600;margin-top:3px;}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .hero{grid-template-columns:1fr;gap:30px;padding:50px 20px 30px;}
+  .hero-text h1{font-size:34px;}
+  .features-strip{grid-template-columns:repeat(2,1fr);padding:0 20px 50px;}
+  .climate-grid{grid-template-columns:repeat(2,1fr);padding:0 16px;}
+  nav{padding:10px 16px;} .nav-links{gap:2px;}
+  .nav-links a{font-size:11px;padding:5px 7px;}
+  .hero-visual{display:none;}
+  .rec-stats{grid-template-columns:repeat(2,1fr);}
+  .rec-details-grid{grid-template-columns:1fr 1fr;}
+  .risk-cards{grid-template-columns:1fr;}
+  .dash-metrics{grid-template-columns:repeat(2,1fr);}
+  .dash-grid{grid-template-columns:1fr;}
+  .form-row{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- LANG BAR -->
+<div id="lang-bar">
+  <span class="lang-title">KrushiMitra</span>
+  <div class="lang-buttons">
+    <button class="lang-btn active" data-lang="en" onclick="setLang('en')">English</button>
+    <button class="lang-btn" data-lang="hi" onclick="setLang('hi')">हिंदी</button>
+    <button class="lang-btn" data-lang="mr" onclick="setLang('mr')">मराठी</button>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="logo-box">KM</div>
+    <span class="logo-text">KrushiMitra</span>
+  </div>
+  <div class="nav-links">
+    <a id="navHome" class="active-nav" onclick="showSection('home')">Home</a>
+    <a id="navInput" onclick="showSection('input')">Farm Details</a>
+    <a id="navClimate" onclick="showSection('climate')">Climate</a>
+    <a id="navRec" onclick="showSection('recommend')">Recommendation</a>
+    <a id="navRisk" onclick="showSection('risk')">Risk</a>
+    <a id="navCal" onclick="showSection('calendar')">Calendar</a>
+    <a id="navPest" onclick="showSection('pest')">Pest Guide</a>
+    <a id="navDash" onclick="showSection('dashboard')">Dashboard</a>
+  </div>
+</nav>
+
+<!-- HOME -->
+<section id="home" class="section active">
+  <div class="hero">
+    <div class="hero-text">
+      <h1 id="appTitle">KrushiMitra</h1>
+      <div class="tagline" id="appTagline">Smart Farming Assistant</div>
+      <p id="heroDesc">District-specific crop recommendation and agricultural guidance for all 36 Maharashtra districts.</p>
+      <div class="hero-btns">
+        <button class="btn-primary" onclick="showSection('input')" id="btnStart">Get Recommendation</button>
+        <button class="btn-secondary" onclick="showSection('dashboard')" id="btnDash">View Dashboard</button>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-card">
+        <div class="crop-label">Recommended Crop</div>
+        <div class="crop-name" id="home-crop-name">Soybean</div>
+        <div class="crop-detail" id="home-crop-detail">Kharif — Pune</div>
+        <div class="crop-stats">
+          <div class="crop-stat"><div class="val" id="home-yield">12 Q</div><div class="key">Yield/Acre</div></div>
+          <div class="crop-stat"><div class="val">MSP</div><div class="key" id="home-msp">₹4892/Qtl</div></div>
+        </div>
+        <div class="risk-row">
+          <span class="risk-pill risk-low" id="home-risk1">Drought: Low</span>
+          <span class="risk-pill risk-med" id="home-risk2">Pest: Medium</span>
+          <span class="risk-pill risk-low" id="home-risk3">Flood: Low</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="features-strip">
+    <div class="feat-card">
+      <h3>Climate Analysis</h3>
+      <p>Real district weather data from IMD for your exact farm location.</p>
+    </div>
+    <div class="feat-card">
+      <h3>Multi-Crop Recommendation</h3>
+      <p>All crops grown in your district with real cultivation data and MSP.</p>
+    </div>
+    <div class="feat-card">
+      <h3>Smart Calendar</h3>
+      <p>Step-by-step farming schedule from land preparation to harvest.</p>
+    </div>
+    <div class="feat-card">
+      <h3>Pest Guide</h3>
+      <p>District zone-specific pests with correct pesticides, dosages and safety.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FARM DETAILS -->
+<section id="input" class="section">
+  <div class="page-header">
+    <h2 id="inputTitle">Farm Details</h2>
+    <p id="inputDesc">Enter your farm details for a district-specific recommendation.</p>
+  </div>
+  <div class="form-container">
+    <div class="form-card">
+      <div class="district-badge" id="district-badge">
+        <div id="db-title">District Info</div>
+        <div id="db-grid" class="db-grid"></div>
+      </div>
+
+      <div class="form-group">
+        <label id="lblDistrict">District</label>
+        <input type="text" id="f-location" placeholder="e.g. Pune, Nashik, Nagpur"
+          oninput="onDistrictInput(this.value)" list="district-list" autocomplete="off">
+        <datalist id="district-list">
+          <option value="Ahilyanagar"><option value="Chhatrapati Sambhajinagar">
+          <option value="Pune"><option value="Nashik"><option value="Nagpur">
+          <option value="Kolhapur"><option value="Satara"><option value="Sangli">
+          <option value="Latur"><option value="Solapur"><option value="Amravati">
+          <option value="Yavatmal"><option value="Wardha"><option value="Jalgaon">
+          <option value="Nanded"><option value="Ratnagiri"><option value="Parbhani">
+          <option value="Beed"><option value="Dharashiv"><option value="Hingoli">
+          <option value="Jalna"><option value="Akola"><option value="Buldhana">
+          <option value="Washim"><option value="Chandrapur"><option value="Gondia">
+          <option value="Bhandara"><option value="Gadchiroli"><option value="Raigad">
+          <option value="Sindhudurg"><option value="Nandurbar"><option value="Dhule">
+          <option value="Thane"><option value="Palghar"><option value="Mumbai City">
+          <option value="Mumbai Suburban">
+        </datalist>
+      </div>
+
+      <div class="form-group">
+        <label id="lblSoil">Soil Type</label>
+        <div class="radio-group">
+          <label class="radio-option selected"><input type="radio" name="soil" value="black" checked>
+            <span id="soilBlack">Black Soil</span></label>
+          <label class="radio-option"><input type="radio" name="soil" value="red">
+            <span id="soilRed">Red Soil</span></label>
+          <label class="radio-option"><input type="radio" name="soil" value="sandy">
+            <span id="soilSandy">Sandy Soil</span></label>
+          <label class="radio-option"><input type="radio" name="soil" value="alluvial">
+            <span id="soilAlluvial">Alluvial Soil</span></label>
+          <label class="radio-option"><input type="radio" name="soil" value="laterite">
+            <span id="soilLaterite">Laterite Soil</span></label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label id="lblSeason">Season</label>
+        <div class="radio-group">
+          <label class="radio-option selected"><input type="radio" name="season" value="kharif" checked>
+            <span id="seasonKharif">Kharif (Jun-Oct)</span></label>
+          <label class="radio-option"><input type="radio" name="season" value="rabi">
+            <span id="seasonRabi">Rabi (Nov-Mar)</span></label>
+          <label class="radio-option"><input type="radio" name="season" value="summer">
+            <span id="seasonSummer">Summer (Apr-Jun)</span></label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label id="lblIrr">Irrigation</label>
+        <div class="radio-group">
+          <label class="radio-option"><input type="radio" name="irr" value="drip">
+            <span id="irrDrip">Drip</span></label>
+          <label class="radio-option selected"><input type="radio" name="irr" value="rainfed" checked>
+            <span id="irrRainfed">Rainfed</span></label>
+          <label class="radio-option"><input type="radio" name="irr" value="flood">
+            <span id="irrFlood">Flood Irrigation</span></label>
+          <label class="radio-option"><input type="radio" name="irr" value="sprinkler">
+            <span id="irrSprinkler">Sprinkler</span></label>
+        </div>
+      </div>
+
+      <button class="submit-btn" id="submit-btn" onclick="getRecommendation()">Get Recommendation</button>
+    </div>
+  </div>
+</section>
+
+<!-- CLIMATE -->
+<section id="climate" class="section">
+  <div class="page-header">
+    <h2 id="climateTitle">Climate Analysis</h2>
+    <p id="climateDesc">District weather data</p>
+  </div>
+  <div class="climate-grid">
+    <div class="climate-card">
+      <div class="cc-label" id="clTemp">Avg Temperature</div>
+      <div class="cc-val" id="cl-temp-val">27</div>
+      <div class="cc-unit">degrees C</div>
+    </div>
+    <div class="climate-card">
+      <div class="cc-label" id="clRain">Annual Rainfall</div>
+      <div class="cc-val" id="cl-rain-val">722</div>
+      <div class="cc-unit">mm</div>
+    </div>
+    <div class="climate-card">
+      <div class="cc-label" id="clHum">Humidity</div>
+      <div class="cc-val" id="cl-hum-val">65</div>
+      <div class="cc-unit">%</div>
+    </div>
+    <div class="climate-card">
+      <div class="cc-label" id="clZone">Agro Zone</div>
+      <div class="cc-val" style="font-size:16px;line-height:1.3" id="cl-region-val">Western MH Plateau</div>
+    </div>
+  </div>
+  <div class="chart-section">
+    <div class="chart-title" id="chartTitle">Monthly Rainfall (mm)</div>
+    <div id="bar-chart"></div>
+  </div>
+  <div class="soil-section">
+    <h3 id="soilInfoTitle">Soil Types in This District</h3>
+    <div id="soil-info-grid"></div>
+  </div>
+</section>
+
+<!-- RECOMMENDATION -->
+<section id="recommend" class="section">
+  <div class="page-header">
+    <h2 id="recTitle">Crop Recommendation</h2>
+    <p id="recDesc">Based on district, soil and season</p>
+  </div>
+  <div class="rec-container">
+    <div class="rec-main">
+      <div class="rec-badge" id="rec-badge">Recommended</div>
+      <h2 id="rec-crop-name">Soybean</h2>
+      <div id="rec-sub">Pune — Kharif — Deep Black</div>
+      <div class="rec-stats">
+        <div class="rec-stat"><div class="rv" id="rec-yield">12-16 Q/acre</div><div class="rk" id="rec-yield-k">Expected Yield</div></div>
+        <div class="rec-stat"><div class="rv" id="rec-sow">June 10-20</div><div class="rk" id="rec-sow-k">Sowing Date</div></div>
+        <div class="rec-stat"><div class="rv" id="rec-dur">90 Days</div><div class="rk" id="rec-dur-k">Duration</div></div>
+        <div class="rec-stat"><div class="rv" id="rec-msp">₹4,892</div><div class="rk" id="rec-msp-k">MSP/Quintal</div></div>
+      </div>
+    </div>
+    <div class="rec-details-grid">
+      <div class="rec-detail-card"><h4 id="rd-soil-k">Suitable Soil</h4><div class="val" id="rd-soil-v">Deep Black</div></div>
+      <div class="rec-detail-card"><h4 id="rd-water-k">Water Requirement</h4><div class="val" id="rd-water-v">420-560mm</div></div>
+      <div class="rec-detail-card"><h4 id="rd-temp-k">Ideal Temp</h4><div class="val" id="rd-temp-v">25-32C</div></div>
+    </div>
+    <div class="analysis-box">
+      <h3 id="analysis-title">Crop Analysis</h3>
+      <p id="analysis-text">Select your district to see crop analysis.</p>
+    </div>
+    <div class="all-crops-box">
+      <h3 id="all-crops-title">All Crops This Season</h3>
+      <div id="all-crops-list"></div>
+    </div>
+  </div>
+</section>
+
+<!-- RISK -->
+<section id="risk" class="section">
+  <div class="page-header">
+    <h2 id="riskTitle">Risk Assessment</h2>
+    <p id="riskDesc">District-specific agricultural risk analysis</p>
+  </div>
+  <div class="risk-container">
+    <div class="risk-cards">
+      <div class="risk-card">
+        <h3 id="r-drought-t">Drought Risk</h3>
+        <div class="risk-meter"><div class="risk-fill low" id="drought-fill"></div></div>
+        <div class="risk-text-low" id="drought-text">Low Risk</div>
+      </div>
+      <div class="risk-card">
+        <h3 id="r-flood-t">Flood Risk</h3>
+        <div class="risk-meter"><div class="risk-fill low" id="flood-fill"></div></div>
+        <div class="risk-text-low" id="flood-text">Low Risk</div>
+      </div>
+      <div class="risk-card">
+        <h3 id="r-pest-t">Pest Risk</h3>
+        <div class="risk-meter"><div class="risk-fill medium" id="pest-fill"></div></div>
+        <div class="risk-text-medium" id="pest-text">Medium Risk</div>
+      </div>
+    </div>
+    <div class="suggestions-card">
+      <h3 id="sugTitle">Risk Reduction Recommendations</h3>
+      <div id="sug-list"></div>
+    </div>
+  </div>
+</section>
+
+<!-- CALENDAR -->
+<section id="calendar" class="section">
+  <div class="page-header">
+    <h2 id="calTitle">Crop Calendar</h2>
+    <p id="calDesc">District-specific crop schedule</p>
+  </div>
+  <div class="calendar-container">
+    <div class="cal-header">
+      <div>
+        <div id="cal-crop-label">Soybean — Kharif</div>
+        <div id="cal-loc-info">Pune, Maharashtra</div>
+      </div>
+    </div>
+    <div class="cal-timeline" id="cal-timeline"></div>
+  </div>
+</section>
+
+<!-- PEST GUIDE -->
+<section id="pest" class="section">
+  <div class="page-header">
+    <h2 id="pestTitle">Pest and Disease Guide</h2>
+    <p id="pestDesc">District zone-specific pest information</p>
+  </div>
+  <div class="pest-container">
+    <div id="dist-pest-alert" class="dist-pest-banner" style="display:none"></div>
+    <div class="pest-grid" id="pest-grid"></div>
+  </div>
+</section>
+
+<!-- DASHBOARD -->
+<section id="dashboard" class="section">
+  <div class="page-header">
+    <h2 id="dashTitle">Farm Dashboard</h2>
+    <p id="dashDesc">Complete overview of your farm plan</p>
+  </div>
+  <div class="dash-container">
+    <div class="dash-top">
+      <h2 id="dash-welcome">Welcome, Farmer</h2>
+      <div id="dash-loc">Pune, Maharashtra — Black Soil — Kharif</div>
+      <div class="dash-metrics">
+        <div class="dash-metric"><div class="dm-val" id="dm-temp">27°C</div><div class="dm-key" id="dm-temp-k">Temperature</div></div>
+        <div class="dash-metric"><div class="dm-val" id="dm-rain">722mm</div><div class="dm-key" id="dm-rain-k">Annual Rainfall</div></div>
+        <div class="dash-metric"><div class="dm-val" id="dm-sow">June 10</div><div class="dm-key" id="dm-sow-k">Sowing Date</div></div>
+        <div class="dash-metric"><div class="dm-val" id="dm-msp">₹4,892</div><div class="dm-key" id="dm-msp-k">MSP/Quintal</div></div>
+      </div>
+    </div>
+    <div class="dash-grid">
+      <div class="dash-card">
+        <h3 id="dash-rec-title">Recommended Crop</h3>
+        <div class="dash-info-row"><span class="dir-key" id="dk-crop">Crop</span><span class="dir-val" id="dv-crop">Soybean</span></div>
+        <div class="dash-info-row"><span class="dir-key" id="dk-yield">Yield</span><span class="dir-val" id="dv-yield">12-16 Q/acre</span></div>
+        <div class="dash-info-row"><span class="dir-key" id="dk-duration">Duration</span><span class="dir-val" id="dv-duration">90 Days</span></div>
+        <div class="dash-info-row"><span class="dir-key" id="dk-season">Season</span><span class="dir-val" id="dv-season">Kharif</span></div>
+        <div class="dash-info-row"><span class="dir-key" id="dk-soil">Soil</span><span class="dir-val" id="dv-soil">Black Soil</span></div>
+      </div>
+      <div class="dash-card">
+        <h3 id="dash-risk-title">Risk Overview</h3>
+        <div class="dash-info-row"><span class="dir-key" id="dk-drought">Drought</span><span class="dir-val" id="dv-drought">Low</span></div>
+        <div class="dash-info-row"><span class="dir-key" id="dk-flood">Flood</span><span class="dir-val" id="dv-flood">Low</span></div>
+        <div class="dash-info-row"><span class="dir-key" id="dk-pest">Pest</span><span class="dir-val" id="dv-pest">Medium</span></div>
+        <div class="dash-info-row"><span class="dir-key" id="dk-zone">Agro Zone</span><span class="dir-val" id="dv-zone">Western Maharashtra</span></div>
+        <div class="next-task">
+          <div class="nt-label" id="nt-label">Next Scheduled Task</div>
+          <div class="nt-task" id="nt-task">Monitor: Girdle Beetle</div>
+          <div class="nt-date" id="nt-date">Jul-Aug</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script src="data.js"></script>
+<script src="model_config.js"></script>
+<script src="ml_engine.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
